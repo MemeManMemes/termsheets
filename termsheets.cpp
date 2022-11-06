@@ -7,6 +7,7 @@ void setarea();
 deque<uint8_t> cols, rows;
 deque<string> text;
 uint8_t x = 0, y = 0;
+bool delrn = false;
 
 int main(int argc, char** argv)
 {
@@ -35,19 +36,39 @@ int main(int argc, char** argv)
 			}
 		}
 		
-		else if (key == 'q')
+		else if (key == 17)
 		{
 			cout << "\e[?25h" << endl;
 			return 0;
 		}
 		
-		else if (key == 127 && text[(y * cols.size()) + x].length() > 0) text[(y * cols.size()) + x].pop_back();
+		else if (key == 127 || key == 8 || delrn == true) 
+		{
+			if (text[(y * size(cols)) + x].length() > 0) text[(y * cols.size()) + x].pop_back();
+			uint16_t j = 0;
+			for (uint8_t i = 0; i < size(cols); i++) if (uint16_t(text[(i * cols.size()) + x].length()) < uint16_t(cols[x] - 1)) j++;
+			j++;
+			if (j == size(rows) && cols[x] > 10) cols[x]--;
+			delrn = false;
+			cout << j;
+		}
 		
 		else  if (key == 5)
 		{
+			x = 0, y = 0;
+			cout << "\e[?25h";
+			uint16_t i = 0, h = 0;
 			system("clear");
 			cout << "Enter new sheet size (x * y) or keep blank: ";
-			
+			cin >> h >> i;
+				while (!text.empty()) text.pop_back();
+				while (!cols.empty()) cols.pop_back();
+				while (!rows.empty()) rows.pop_back();
+				for (uint16_t f = 0; f < i; f++) cols.push_back(10);
+				for (uint16_t f = 0; f < h ; f++) rows.push_back(1);
+				for (uint16_t f = 0; f < (h * i); f++) text.push_back("");
+				delrn = true;
+				cout << "\e[?25l";
 		}
 		
 		else 
@@ -100,5 +121,5 @@ void setarea()
 		}
 		cout << endl;
 	}
-	cout << endl;
+	cout << endl << "X: " << uint16_t(x) << endl << "Y: " << uint16_t(y) << endl << endl << "CTRL + h  :  get help";
 }
